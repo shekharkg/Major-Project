@@ -1,6 +1,7 @@
 package com.example1.cp.gridpage;
 
 import android.content.Context;
+import android.net.Uri;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
@@ -12,6 +13,7 @@ import android.widget.Toast;
 
 import com.etsy.android.grid.util.DynamicHeightImageView;
 import com.etsy.android.grid.util.DynamicHeightTextView;
+import com.koushikdutta.ion.Ion;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -82,15 +84,15 @@ public class GridAdapter extends ArrayAdapter<ProductData> {
 
         vh.txtLineOne.setHeightRatio(positionHeight);
         vh.txtLineOne.setText(getItem(position).getTitle() + position);
-        vh.productImg.setImageResource(R.drawable.shoe);
+        Ion.with(vh.productImg).placeholder(R.drawable.ic_launcher).error(R.drawable.ic_launcher).load(getItem(position).getImage());
 
-        vh.btnGo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View v) {
-                Toast.makeText(getContext(), "Button Clicked Position " +
-                        position, Toast.LENGTH_SHORT).show();
-            }
-        });
+              vh.btnGo.setOnClickListener(new View.OnClickListener() {
+                  @Override
+                  public void onClick(final View v) {
+                      Toast.makeText(getContext(), "Button Clicked Position " +
+                              position, Toast.LENGTH_SHORT).show();
+                  }
+              });
 
         return convertView;
     }
