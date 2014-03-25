@@ -8,14 +8,14 @@
     android:descendantFocusability="blocksDescendants">
     <com.etsy.android.grid.util.DynamicHeightImageView
         android:id="@+id/product_img"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
         android:gravity="center"/>
     <com.etsy.android.grid.util.DynamicHeightTextView
         android:id="@+id/txt_line"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="bottom"/>
+        android:gravity="bottom|center"/>
 
     <Button
         android:id="@+id/btn_go"
