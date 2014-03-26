@@ -1,7 +1,6 @@
 package com.example1.cp.gridpage;
 
 import android.content.Context;
-import android.net.Uri;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
@@ -84,7 +83,7 @@ public class GridAdapter extends ArrayAdapter<ProductData> {
 
         vh.txtLineOne.setHeightRatio(positionHeight);
         vh.txtLineOne.setText(getItem(position).getTitle() + position);
-        Ion.with(vh.productImg).placeholder(R.drawable.ic_launcher).error(R.drawable.ic_launcher).load(getItem(position).getImage());
+        Ion.with(vh.productImg).placeholder(R.drawable.loading).error(R.drawable.loading).load(getItem(position).getImage());
 
               vh.btnGo.setOnClickListener(new View.OnClickListener() {
                   @Override
