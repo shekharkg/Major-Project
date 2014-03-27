@@ -81,7 +81,7 @@ public class GridAdapter extends ArrayAdapter<ProductData> {
 
         Log.d(TAG, "getView position:" + position + " h:" + positionHeight);
 
-        vh.txtLineOne.setHeightRatio(positionHeight);
+        vh.productImg.setHeightRatio(positionHeight);
         vh.txtLineOne.setText(getItem(position).getTitle() + position);
         Ion.with(vh.productImg).placeholder(R.drawable.loading).error(R.drawable.loading).load(getItem(position).getImage());
 
@@ -110,6 +110,6 @@ public class GridAdapter extends ArrayAdapter<ProductData> {
     }
 
     private double getRandomHeightRatio() {
-        return (myRandom.nextDouble() / 2.0) + 1.0; // height will be 1.0 - 1.5 the width
+        return (myRandom.nextDouble() / 2.0) + 0.6; // height will be 1.0 - 1.5 the width
     }
  }

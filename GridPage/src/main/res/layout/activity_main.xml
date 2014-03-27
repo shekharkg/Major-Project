@@ -8,6 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:item_margin="8dp"
+        android:background="@color/yellow"
         app:column_count_portrait="2"
         app:column_count_landscape="3"/>
 

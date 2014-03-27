@@ -6,5 +6,6 @@
     <color name="blue">#ff82e0ff</color>
     <color name="yellow">#fffffbae</color>
     <color name="red">#fff10800</color>
+    <color name="white">#ffffffff</color>
     <color name="list_item_pressed">#1A000000</color>
 </resources>
