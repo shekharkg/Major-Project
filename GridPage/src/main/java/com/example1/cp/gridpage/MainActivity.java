@@ -1,12 +1,16 @@
 package com.example1.cp.gridpage;
 
 import android.app.Activity;
+import android.app.SearchManager;
+import android.app.SearchableInfo;
+import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.view.MenuItemCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
@@ -30,19 +34,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by SKG on 24-Mar-14.
  */
-public class MainActivity extends Activity implements AbsListView.OnScrollListener, AbsListView.OnItemClickListener {
-
+public class MainActivity extends Activity implements AbsListView.OnScrollListener, AbsListView.OnItemClickListener, SearchView.OnQueryTextListener {
 
     private static final String TAG = "MainActivity";
     public static final String SAVED_DATA_KEY = "SAVED_DATA";
     static String title = "product title";
     static String description = "product description";
     static String image = "http://image.shutterstock.com/display_pic_with_logo/849265/111971633/stock-…to-concept-error-on-white-background-page-not-found-d-render-111971633.jpg";
-    static ArrayList<ProductData> data = new ArrayList<ProductData>();
     private int start,rows,end;
     private StaggeredGridView myGridView;
     private boolean myHasRequestedMore;
@@ -52,7 +55,8 @@ public class MainActivity extends Activity implements AbsListView.OnScrollListen
     private LayoutInflater layoutInflater;
     private View footer;
     private TextView txtFooterTitle;
-
+    private SearchView mSearchView;
+    private ArrayList<ProductData> myData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,11 +70,17 @@ public class MainActivity extends Activity implements AbsListView.OnScrollListen
         txtFooterTitle.setText("THE FOOTER!");
         myGridView.addFooterView(footer);
 
+        myAdapter = new GridAdapter(this, R.id.txt_line);
+
+        if (savedInstanceState != null) {
+           // myData = savedInstanceState.getStringArrayList(SAVED_DATA_KEY);
+        }
+
         start = 0;
         rows = 30;
         end = 0;
         ajaxUrl = baseUrl+start+"&rows="+rows;
-        myAdapter = new GridAdapter(this, R.id.txt_line);
+
 
         myGridView.setAdapter(myAdapter);
 
@@ -83,28 +93,67 @@ public class MainActivity extends Activity implements AbsListView.OnScrollListen
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
-        MenuItem searchItem = menu.findItem(R.id.action_search);
-        SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
-        // Configure the search info and add any event listeners
-
-        return super.onCreateOptionsMenu(menu);
+    protected void onSaveInstanceState(final Bundle outState) {
+        super.onSaveInstanceState(outState);
+        //outState.putCharSequenceArrayList(SAVED_DATA_KEY, myData);
     }
+
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle presses on the action bar items
-        switch (item.getItemId()) {
-            case R.id.action_search:
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
 
-                
-                return true;
-            case R.id.action_settings:
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main, menu);
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        mSearchView = (SearchView) searchItem.getActionView();
+        setupSearchView(searchItem);
 
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+        return true;
+    }
+
+    private void setupSearchView(MenuItem searchItem) {
+
+        if (isAlwaysExpanded()) {
+            mSearchView.setIconifiedByDefault(false);
+        } else {
+            searchItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_IF_ROOM
+                    | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
         }
+
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        if (searchManager != null) {
+            List<SearchableInfo> searchables = searchManager.getSearchablesInGlobalSearch();
+
+            SearchableInfo info = searchManager.getSearchableInfo(getComponentName());
+            for (SearchableInfo inf : searchables) {
+                if (inf.getSuggestAuthority() != null
+                        && inf.getSuggestAuthority().startsWith("applications")) {
+                    info = inf;
+                }
+            }
+            mSearchView.setSearchableInfo(info);
+        }
+
+        mSearchView.setOnQueryTextListener(this);
+    }
+
+    public boolean onQueryTextChange(String newText) {
+       // mStatusView.setText("Query = " + newText);
+        return false;
+    }
+
+    public boolean onQueryTextSubmit(String query) {
+       // mStatusView.setText("Query = " + query + " : submitted");
+        return false;
+    }
+
+    public boolean onClose() {
+       // mStatusView.setText("Closed!");
+        return false;
+    }
+
+    protected boolean isAlwaysExpanded() {
+        return false;
     }
 
     @Override
@@ -137,6 +186,8 @@ public class MainActivity extends Activity implements AbsListView.OnScrollListen
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
         Toast.makeText(this, "Item Clicked: " + position, Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(MainActivity.this,MyDialog.class);
+        startActivity(intent);
     }
     private class HttpAsyncTask extends AsyncTask<String, Void, String> {
 
@@ -149,7 +200,6 @@ public class MainActivity extends Activity implements AbsListView.OnScrollListen
         }
         @Override
         protected String doInBackground(String... urls) {
-
             return GET(urls[0]);
         }
 

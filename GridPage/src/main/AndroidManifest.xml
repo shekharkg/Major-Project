@@ -9,7 +9,8 @@
         android:theme="@style/AppTheme" >
 
         <activity android:name=".MainActivity">
-
+            <meta-data android:name="android.app.default_searchable"
+                android:value=".SearchableActivity" />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -19,7 +20,7 @@
         <activity android:name=".MyDialog" />
 
 
-        </application>
+    </application>
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 </manifest>

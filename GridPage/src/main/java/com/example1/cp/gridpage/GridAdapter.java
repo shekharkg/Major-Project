@@ -83,7 +83,7 @@ public class GridAdapter extends ArrayAdapter<ProductData> {
 
         vh.productImg.setHeightRatio(positionHeight);
         vh.txtLineOne.setText(getItem(position).getTitle() + position);
-        Ion.with(vh.productImg).placeholder(R.drawable.loading).error(R.drawable.loading).load(getItem(position).getImage());
+        Ion.with(vh.productImg).placeholder(R.drawable.product).error(R.drawable.product).load(getItem(position).getImage());
 
               vh.btnGo.setOnClickListener(new View.OnClickListener() {
                   @Override

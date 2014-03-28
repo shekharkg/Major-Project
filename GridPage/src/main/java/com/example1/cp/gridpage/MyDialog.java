@@ -1,37 +1,28 @@
 package com.example1.cp.gridpage;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.view.Menu;
 
-public class MyDialog extends Activity{
-  @Override
-  protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_mydialog);
-    Intent intent = getIntent();
-    if(intent!=null){
-      
-      String myImage = intent.getStringExtra("myImage");
-      String myTitle = intent.getStringExtra("myTitle");
-      String myDescription = intent.getStringExtra("myDescription");
+import com.manuelpeinado.fadingactionbar.FadingActionBarHelper;
 
-      ImageView image = (ImageView) findViewById(R.id.imageView1);
-      //image.setImageResource(myImage);
-      TextView title = (TextView) findViewById(R.id.textView1);
-      title.setText(myTitle);
-      TextView description = (TextView) findViewById(R.id.textView2);
-      description.setText(myDescription);
+public class MyDialog extends Activity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        FadingActionBarHelper helper = new FadingActionBarHelper()
+                .actionBarBackground(R.drawable.ab_background)
+                .headerLayout(R.layout.header)
+                .contentLayout(R.layout.activity_scrollview);
+        setContentView(helper.createView(this));
+        helper.initActionBar(this);
     }
-    
-    
-    
-    
-}
-  public void closeDialog(View v){
-    finish();
-  }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
 }
