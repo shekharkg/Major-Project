@@ -22,9 +22,10 @@
 
             <com.etsy.android.grid.util.DynamicHeightTextView
             android:id="@+id/txt_line"
-            android:layout_width="wrap_content"
+            android:layout_marginTop="1dp"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:background="@color/blue"
+            android:background="@color/white"
             android:gravity="bottom|center"/>
     </LinearLayout>
 

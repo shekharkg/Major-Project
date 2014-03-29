@@ -1,16 +1,13 @@
 package com.example1.cp.gridpage;
 
-import android.app.Activity;
-import android.app.SearchManager;
-import android.app.SearchableInfo;
-import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
@@ -33,30 +30,27 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by SKG on 24-Mar-14.
  */
-public class MainActivity extends Activity implements AbsListView.OnScrollListener, AbsListView.OnItemClickListener, SearchView.OnQueryTextListener {
+public class MainActivity extends ActionBarActivity implements AbsListView.OnScrollListener, AbsListView.OnItemClickListener, SearchView.OnQueryTextListener {
 
     private static final String TAG = "MainActivity";
-    public static final String SAVED_DATA_KEY = "SAVED_DATA";
     static String title = "product title";
     static String description = "product description";
     static String image = "http://image.shutterstock.com/display_pic_with_logo/849265/111971633/stock-…to-concept-error-on-white-background-page-not-found-d-render-111971633.jpg";
     private int start,rows,end;
+    private String search;
     private StaggeredGridView myGridView;
     private boolean myHasRequestedMore;
     private GridAdapter myAdapter;
-    private String baseUrl = "http://0.us-east-1a.search-sandbox.ss1.mobile.brmob.net:7090/solr/searsoutlet_com_products/select_qd20130731?q=fridge&facet=false&wt=json&fl=product_id%2Cproduct_name%2Cthumb_image_url%2Cmfr_name%2Cprice&start=";
+    private String baseUrl = "http://0.us-east-1a.search-sandbox.ss1.mobile.brmob.net:7090/solr/searsoutlet_com_products/select_qd20130731?facet=false&wt=json&fl=product_id%2Cproduct_name%2Cthumb_image_url%2Cmfr_name%2Cprice&start=";
     private String ajaxUrl;
     private LayoutInflater layoutInflater;
     private View footer;
     private TextView txtFooterTitle;
     private SearchView mSearchView;
-    private ArrayList<ProductData> myData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,90 +63,55 @@ public class MainActivity extends Activity implements AbsListView.OnScrollListen
         txtFooterTitle =  (TextView) footer.findViewById(R.id.txt_title);
         txtFooterTitle.setText("THE FOOTER!");
         myGridView.addFooterView(footer);
-
         myAdapter = new GridAdapter(this, R.id.txt_line);
 
-        if (savedInstanceState != null) {
-           // myData = savedInstanceState.getStringArrayList(SAVED_DATA_KEY);
+        Intent intent = getIntent();
+        if(intent!=null) {
+            search = intent.getStringExtra("searchValue");
         }
 
         start = 0;
         rows = 30;
         end = 0;
-        ajaxUrl = baseUrl+start+"&rows="+rows;
-
+        ajaxUrl = baseUrl+start+"&rows="+rows+"&q="+search;
 
         myGridView.setAdapter(myAdapter);
-
         myGridView.setOnScrollListener(this);
-
         myGridView.setOnItemClickListener(this);
         new HttpAsyncTask().execute(ajaxUrl);
         start += rows;
-        ajaxUrl = baseUrl+start+"&rows="+rows;
-    }
-
-    @Override
-    protected void onSaveInstanceState(final Bundle outState) {
-        super.onSaveInstanceState(outState);
-        //outState.putCharSequenceArrayList(SAVED_DATA_KEY, myData);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main, menu);
+        getMenuInflater().inflate(R.menu.main, menu);
         MenuItem searchItem = menu.findItem(R.id.action_search);
-        mSearchView = (SearchView) searchItem.getActionView();
-        setupSearchView(searchItem);
-
+        mSearchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        mSearchView.setOnQueryTextListener(this);
         return true;
     }
 
-    private void setupSearchView(MenuItem searchItem) {
-
-        if (isAlwaysExpanded()) {
-            mSearchView.setIconifiedByDefault(false);
-        } else {
-            searchItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_IF_ROOM
-                    | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
-        }
-
-        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        if (searchManager != null) {
-            List<SearchableInfo> searchables = searchManager.getSearchablesInGlobalSearch();
-
-            SearchableInfo info = searchManager.getSearchableInfo(getComponentName());
-            for (SearchableInfo inf : searchables) {
-                if (inf.getSuggestAuthority() != null
-                        && inf.getSuggestAuthority().startsWith("applications")) {
-                    info = inf;
-                }
-            }
-            mSearchView.setSearchableInfo(info);
-        }
-
-        mSearchView.setOnQueryTextListener(this);
-    }
-
-    public boolean onQueryTextChange(String newText) {
-       // mStatusView.setText("Query = " + newText);
-        return false;
-    }
-
+    @Override
     public boolean onQueryTextSubmit(String query) {
-       // mStatusView.setText("Query = " + query + " : submitted");
-        return false;
+        Toast.makeText(this, query, Toast.LENGTH_LONG).show();
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra("searchValue",query);
+        startActivity(intent);
+        return true;
     }
 
-    public boolean onClose() {
-       // mStatusView.setText("Closed!");
+    @Override
+    public boolean onQueryTextChange(String newText) {
         return false;
     }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()){
+            case R.id.action_search:
+                mSearchView.setIconified(false);
+                return true;
+        }
 
-    protected boolean isAlwaysExpanded() {
         return false;
     }
 
@@ -180,7 +139,7 @@ public class MainActivity extends Activity implements AbsListView.OnScrollListen
     private void onLoadMoreItems() {
         new HttpAsyncTask().execute(ajaxUrl);
         start += rows;
-        ajaxUrl = baseUrl+start+"&rows="+rows;
+        ajaxUrl = baseUrl+start+"&rows="+rows+"&q="+search;
     }
 
     @Override
@@ -189,13 +148,14 @@ public class MainActivity extends Activity implements AbsListView.OnScrollListen
         Intent intent = new Intent(MainActivity.this,MyDialog.class);
         startActivity(intent);
     }
+
     private class HttpAsyncTask extends AsyncTask<String, Void, String> {
 
 
         @Override
         protected void onPreExecute() {
             // TODO Auto-generated method stub
-           txtFooterTitle.setText("Loadnig...");
+           txtFooterTitle.setText("Loading...");
             super.onPreExecute();
         }
         @Override

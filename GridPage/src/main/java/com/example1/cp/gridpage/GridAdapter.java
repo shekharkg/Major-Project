@@ -41,11 +41,11 @@ public class GridAdapter extends ArrayAdapter<ProductData> {
         myLayoutInflater = LayoutInflater.from(context);
         myRandom = new Random();
         mBackgroundColors = new ArrayList<Integer>();
-        mBackgroundColors.add(R.color.orange);
-        mBackgroundColors.add(R.color.green);
-        mBackgroundColors.add(R.color.blue);
-        mBackgroundColors.add(R.color.yellow);
-        mBackgroundColors.add(R.color.grey);
+        mBackgroundColors.add(R.color.black);
+       // mBackgroundColors.add(R.color.green);
+        //mBackgroundColors.add(R.color.blue);
+       // mBackgroundColors.add(R.color.yellow);
+        //mBackgroundColors.add(R.color.grey);
        // myData = new ArrayList<ProductData>();
     }
 
