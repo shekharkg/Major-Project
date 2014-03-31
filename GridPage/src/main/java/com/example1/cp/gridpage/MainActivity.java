@@ -14,43 +14,33 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.SearchView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.etsy.android.grid.StaggeredGridView;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-
 /**
  * Created by SKG on 24-Mar-14.
  */
-public class MainActivity extends ActionBarActivity implements AbsListView.OnScrollListener, AbsListView.OnItemClickListener, SearchView.OnQueryTextListener {
+abstract public class MainActivity extends ActionBarActivity implements AbsListView.OnScrollListener, AbsListView.OnItemClickListener, SearchView.OnQueryTextListener {
 
     private static final String TAG = "MainActivity";
-    static String title = "product title";
-    static String description = "product description";
-    static String image = "http://image.shutterstock.com/display_pic_with_logo/849265/111971633/stock-…to-concept-error-on-white-background-page-not-found-d-render-111971633.jpg";
-    private int start,rows,end;
-    private String search;
-    private StaggeredGridView myGridView;
+    String title = "product title";
+    String id = "product id";
+    String image = "http://image.shutterstock.com/display_pic_with_logo/849265/111971633/stock-…to-concept-error-on-white-background-page-not-found-d-render-111971633.jpg";
+    int start,rows,end;
+    String search = "camera";
+    StaggeredGridView myGridView;
     private boolean myHasRequestedMore;
-    private GridAdapter myAdapter;
-    private String baseUrl = "http://0.us-east-1a.search-sandbox.ss1.mobile.brmob.net:7090/solr/searsoutlet_com_products/select_qd20130731?facet=false&wt=json&fl=product_id%2Cproduct_name%2Cthumb_image_url%2Cmfr_name%2Cprice&start=";
-    private String ajaxUrl;
-    private LayoutInflater layoutInflater;
-    private View footer;
-    private TextView txtFooterTitle;
-    private SearchView mSearchView;
+    GridAdapter myAdapter;
+    String baseUrl = "http://0.us-east-1a.search-sandbox.ss1.mobile.brmob.net:7090/solr/searsoutlet_com_products/select_qd20130731?facet=false&wt=json&fl=product_id%2Cproduct_name%2Cthumb_image_url%2Cmfr_name%2Cprice&start=";
+    String ajaxUrl;
+    LayoutInflater layoutInflater;
+    View footer;
+    TextView txtFooterTitle;
+   SearchView mSearchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,11 +54,6 @@ public class MainActivity extends ActionBarActivity implements AbsListView.OnScr
         txtFooterTitle.setText("THE FOOTER!");
         myGridView.addFooterView(footer);
         myAdapter = new GridAdapter(this, R.id.txt_line);
-
-        Intent intent = getIntent();
-        if(intent!=null) {
-            search = intent.getStringExtra("searchValue");
-        }
 
         start = 0;
         rows = 30;
@@ -93,10 +78,9 @@ public class MainActivity extends ActionBarActivity implements AbsListView.OnScr
 
     @Override
     public boolean onQueryTextSubmit(String query) {
-        Toast.makeText(this, query, Toast.LENGTH_LONG).show();
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.putExtra("searchValue",query);
-        startActivity(intent);
+        Intent setIntentSearch = new Intent(this,SearchActivity.class);
+        setIntentSearch.putExtra("searchValue", query);
+        startActivity(setIntentSearch);
         return true;
     }
 
@@ -104,13 +88,9 @@ public class MainActivity extends ActionBarActivity implements AbsListView.OnScr
     public boolean onQueryTextChange(String newText) {
         return false;
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch(item.getItemId()){
-            case R.id.action_search:
-                mSearchView.setIconified(false);
-                return true;
-        }
 
         return false;
     }
@@ -144,12 +124,15 @@ public class MainActivity extends ActionBarActivity implements AbsListView.OnScr
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-        Toast.makeText(this, "Item Clicked: " + position, Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent(MainActivity.this,MyDialog.class);
-        startActivity(intent);
+
+        ProductData productData = myAdapter.getItem(position);
+        Intent setIntentProdId = new Intent(this, MyDialog.class);
+        setIntentProdId.putExtra("prodID",productData.getId());
+        startActivity(setIntentProdId);
     }
 
-    private class HttpAsyncTask extends AsyncTask<String, Void, String> {
+    class HttpAsyncTask extends AsyncTask<String, Void, String> {
+       GetJsonString getJsonString = new GetJsonString();
 
 
         @Override
@@ -160,7 +143,7 @@ public class MainActivity extends ActionBarActivity implements AbsListView.OnScr
         }
         @Override
         protected String doInBackground(String... urls) {
-            return GET(urls[0]);
+            return getJsonString.GET(urls[0]);
         }
 
         @Override
@@ -177,8 +160,8 @@ public class MainActivity extends ActionBarActivity implements AbsListView.OnScr
                 for (int i = 0; i < docs.length(); i++) {
                     title = docs.getJSONObject(i).getString("product_name");
                     image = docs.getJSONObject(i).getString("thumb_image_url");
-                    description = docs.getJSONObject(i).getString("product_name");
-                    myAdapter.add(new ProductData(title, description, image));
+                    id = docs.getJSONObject(i).getString("product_id");
+                    myAdapter.add(new ProductData(title, image, id));
                 }
                 myAdapter.notifyDataSetChanged();
                 myHasRequestedMore = false;
@@ -190,44 +173,4 @@ public class MainActivity extends ActionBarActivity implements AbsListView.OnScr
         }
 
     }
-
-    public static String GET(String url){
-        InputStream inputStream = null;
-        String result = "";
-        try {
-
-            // create HttpClient
-            HttpClient httpclient = new DefaultHttpClient();
-
-            // make GET request to the given URL
-            HttpResponse httpResponse = httpclient.execute(new HttpGet(url));
-
-            // receive response as inputStream
-            inputStream = httpResponse.getEntity().getContent();
-
-            // convert inputstream to string
-            if(inputStream != null)
-                result = convertInputStreamToString(inputStream);
-            else
-                result = "Did not work!";
-
-        } catch (Exception e) {
-            Log.d("InputStream", e.getLocalizedMessage());
-        }
-
-        return result;
-    }
-
-    private static String convertInputStreamToString(InputStream inputStream) throws IOException {
-        BufferedReader bufferedReader = new BufferedReader( new InputStreamReader(inputStream));
-        String line = "";
-        String result = "";
-        while((line = bufferedReader.readLine()) != null)
-            result += line;
-
-        inputStream.close();
-        return result;
-
-    }
-
 }

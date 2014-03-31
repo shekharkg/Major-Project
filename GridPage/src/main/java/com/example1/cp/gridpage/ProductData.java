@@ -5,21 +5,21 @@ package com.example1.cp.gridpage;
  */
 public class ProductData {
     String title;
-    String description;
     String image;
+    String id;
 
-    public ProductData(String title,String description, String image){
+    public ProductData(String title, String image, String id){
         this.title = title;
-        this.description = description;
         this.image = image;
+        this.id = id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public void setImage(String image) {
@@ -30,8 +30,8 @@ public class ProductData {
         return title;
     }
 
-    public String getDescription() {
-        return description;
+    public String getId() {
+        return id;
     }
 
     public String getImage() {
