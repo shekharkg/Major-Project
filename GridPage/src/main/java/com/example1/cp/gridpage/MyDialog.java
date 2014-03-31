@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.ShareActionProvider;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
@@ -28,6 +29,8 @@ public class MyDialog extends ActionBarActivity implements SearchView.OnQueryTex
     private ImageView prodImageView;
     private TextView prodTitleView, prodDescView;
     private String prodImg, prodTitle, prodDesc;
+
+    private ShareActionProvider myShareActionProvider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,12 +73,22 @@ public class MyDialog extends ActionBarActivity implements SearchView.OnQueryTex
         mSearchView = (SearchView) MenuItemCompat.getActionView(searchItem);
         mSearchView.setOnQueryTextListener(this);
 
-        return true;
+        MenuItem shareItem = menu.findItem(R.id.menu_item_share);
+        myShareActionProvider = (ShareActionProvider)
+                MenuItemCompat.getActionProvider(shareItem);
+        myShareActionProvider.setShareIntent(createShareIntent());
+        return super.onCreateOptionsMenu(menu);
     }
+    private Intent createShareIntent() {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, "URL of the product to be shared");
+        return shareIntent;
+    }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
         return false;
     }
 
@@ -116,7 +129,7 @@ public class MyDialog extends ActionBarActivity implements SearchView.OnQueryTex
                 prodTitle = docs.getJSONObject(0).getString("product_name");
                 prodDesc = docs.getJSONObject(0).getString("long_desc");
                 String strImage = docs.getJSONObject(0).getString("thumb_image_url");
-                prodImg = strImage.replace("wid=120&hei=120", "wid=350&hei=350");
+                prodImg = strImage.replace("wid=120&hei=120", "wid=1080&hei=675");
 
                 setTitle(prodTitle);
                 prodTitleView.setText(prodTitle);
