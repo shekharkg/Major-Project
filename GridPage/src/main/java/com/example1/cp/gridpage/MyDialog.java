@@ -18,6 +18,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+
 public class MyDialog extends ActionBarActivity implements SearchView.OnQueryTextListener  {
 
     private SearchView mSearchView;
@@ -33,7 +36,13 @@ public class MyDialog extends ActionBarActivity implements SearchView.OnQueryTex
         Intent intentGetProdId = getIntent();
         if(intentGetProdId!=null) {
             String prodID = intentGetProdId.getStringExtra("prodID");
-            prodUrl = "http://0.us-east-1a.search-sandbox.ss1.mobile.brmob.net:7090/solr/searsoutlet_com_products/select_qd20130731?fl=product_id%2Cproduct_name%2Cthumb_image_url%20%2Cmfr_name%2Clong_desc%2Cavailability%2Cregular_price%2Cregular_price%20%2Cprice%2Cbuy_url&facet=false&wt=json&fq=product_id:"+prodID;
+            prodUrl =getResources().getString(R.string.prod_url);
+            try {
+                prodUrl = URLDecoder.decode(prodUrl, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+            prodUrl = prodUrl+prodID;
         }
 
 

@@ -21,6 +21,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+
 /**
  * Created by SKG on 24-Mar-14.
  */
@@ -35,7 +38,7 @@ abstract public class MainActivity extends ActionBarActivity implements AbsListV
     StaggeredGridView myGridView;
     private boolean myHasRequestedMore;
     GridAdapter myAdapter;
-    String baseUrl = "http://0.us-east-1a.search-sandbox.ss1.mobile.brmob.net:7090/solr/searsoutlet_com_products/select_qd20130731?facet=false&wt=json&fl=product_id%2Cproduct_name%2Cthumb_image_url%2Cmfr_name%2Cprice&start=";
+    String baseUrl;
     String ajaxUrl;
     LayoutInflater layoutInflater;
     View footer;
@@ -54,6 +57,13 @@ abstract public class MainActivity extends ActionBarActivity implements AbsListV
         txtFooterTitle.setText("THE FOOTER!");
         myGridView.addFooterView(footer);
         myAdapter = new GridAdapter(this, R.id.txt_line);
+
+        baseUrl = getResources().getString(R.string.base_url);
+        try {
+            baseUrl = URLDecoder.decode(baseUrl, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
 
         start = 0;
         rows = 30;
