@@ -185,7 +185,7 @@ abstract public class MainActivity extends ActionBarActivity implements AbsListV
                 for (int i = 0; i < products.length(); i++) {
                     title = products.getJSONObject(i).getString("product");
                     image = products.getJSONObject(i).getString("search_image");
-                    id = products.getJSONObject(i).getString("styleid");
+                    id = products.getJSONObject(i).getString("price");
                     myAdapter.add(new ProductData(title, image, id));
                 }
                 myAdapter.notifyDataSetChanged();

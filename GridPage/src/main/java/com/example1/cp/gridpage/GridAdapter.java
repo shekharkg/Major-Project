@@ -82,14 +82,15 @@ public class GridAdapter extends ArrayAdapter<ProductData> {
         Log.d(TAG, "getView position:" + position + " h:" + positionHeight);
 
         vh.productImg.setHeightRatio(positionHeight);
-        vh.txtLineOne.setText(getItem(position).getTitle() + position);
-        //vh.btnGo.setText(getItem(position).getId());
+        vh.txtLineOne.setText(getItem(position).getTitle());
+        //vh.txtLineOne.setText(getItem(position).getTitle() + position);  =============  for checking items position. remove upper line if use this
+        vh.btnGo.setText(getItem(position).getId());
         Ion.with(vh.productImg).placeholder(R.drawable.product).error(R.drawable.product).load(getItem(position).getImage());
 
               vh.btnGo.setOnClickListener(new View.OnClickListener() {
                   @Override
                   public void onClick(final View v) {
-                      Toast.makeText(getContext(), "Product ID : " +
+                      Toast.makeText(getContext(), "Price : " +
                               getItem(position).getId(), Toast.LENGTH_SHORT).show();
                   }
               });
