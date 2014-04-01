@@ -34,16 +34,18 @@ abstract public class MainActivity extends ActionBarActivity implements AbsListV
     String id = "product id";
     String image = "http://image.shutterstock.com/display_pic_with_logo/849265/111971633/stock-…to-concept-error-on-white-background-page-not-found-d-render-111971633.jpg";
     int start,rows,end;
-    String search = "camera";
+    String search = "nike";
     StaggeredGridView myGridView;
     private boolean myHasRequestedMore;
     GridAdapter myAdapter;
-    String baseUrl;
-    String ajaxUrl;
+   // String baseUrl;
+   // String ajaxUrl;
     LayoutInflater layoutInflater;
     View footer;
     TextView txtFooterTitle;
-   SearchView mSearchView;
+    SearchView mSearchView;
+    JSONArray jsonString;
+    String postUrl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,23 +60,36 @@ abstract public class MainActivity extends ActionBarActivity implements AbsListV
         myGridView.addFooterView(footer);
         myAdapter = new GridAdapter(this, R.id.txt_line);
 
-        baseUrl = getResources().getString(R.string.base_url);
+       // baseUrl = getResources().getString(R.string.base_url);
         try {
-            baseUrl = URLDecoder.decode(baseUrl, "UTF-8");
+            jsonString = new JSONArray(getResources().getString(R.string.json_string));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        postUrl = getResources().getString(R.string.base_url_m);
+
+        try {
+            postUrl = URLDecoder.decode(postUrl, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
 
+       /* try {
+            baseUrl = URLDecoder.decode(baseUrl, "UTF-8");
+
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }*/
+
         start = 0;
-        rows = 30;
+        rows = 50;
         end = 0;
-        ajaxUrl = baseUrl+start+"&rows="+rows+"&q="+search;
+       // ajaxUrl = baseUrl+start+"&rows="+rows+"&q="+search;
 
         myGridView.setAdapter(myAdapter);
         myGridView.setOnScrollListener(this);
         myGridView.setOnItemClickListener(this);
-        new HttpAsyncTask().execute(ajaxUrl);
-        start += rows;
+        new HttpAsyncTask().execute(postUrl);
     }
 
     @Override
@@ -127,9 +142,9 @@ abstract public class MainActivity extends ActionBarActivity implements AbsListV
     }
 
     private void onLoadMoreItems() {
-        new HttpAsyncTask().execute(ajaxUrl);
+        new HttpAsyncTask().execute(postUrl);
         start += rows;
-        ajaxUrl = baseUrl+start+"&rows="+rows+"&q="+search;
+        //ajaxUrl = baseUrl+start+"&rows="+rows+"&q="+search;
     }
 
     @Override
@@ -153,31 +168,30 @@ abstract public class MainActivity extends ActionBarActivity implements AbsListV
         }
         @Override
         protected String doInBackground(String... urls) {
-            return getJsonString.GET(urls[0]);
+            return getJsonString.GET(urls[0],jsonString, start, search);
         }
 
         @Override
         protected void onPostExecute(String result) {
-            txtFooterTitle.setText("");
+            txtFooterTitle.setText("PostExecute");
             try {
                 JSONObject json = new JSONObject(result);
-                JSONObject response = json.getJSONObject("response");
-                JSONArray docs = response.getJSONArray("docs");
-                if(docs.length() < 30){
+                JSONObject response1 = json.getJSONObject("response1");
+                JSONArray products = response1.getJSONArray("products");
+                if(products.length() < 50){
                     end = 1;
                     txtFooterTitle.setText("JSon End");
                 }
-                for (int i = 0; i < docs.length(); i++) {
-                    title = docs.getJSONObject(i).getString("product_name");
-                    image = docs.getJSONObject(i).getString("thumb_image_url");
-                    id = docs.getJSONObject(i).getString("product_id");
+                for (int i = 0; i < products.length(); i++) {
+                    title = products.getJSONObject(i).getString("product");
+                    image = products.getJSONObject(i).getString("search_image");
+                    id = products.getJSONObject(i).getString("styleid");
                     myAdapter.add(new ProductData(title, image, id));
                 }
                 myAdapter.notifyDataSetChanged();
                 myHasRequestedMore = false;
             } catch (JSONException e) {
                 // TODO Auto-generated catch block
-                txtFooterTitle.setText("Connect to the internet");
                 e.printStackTrace();
             }
         }

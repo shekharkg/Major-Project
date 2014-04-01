@@ -31,7 +31,7 @@ public class MyDialog extends ActionBarActivity implements SearchView.OnQueryTex
     private String prodImg, prodTitle, prodDesc;
 
     private ShareActionProvider myShareActionProvider;
-
+    JSONArray jsonString;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,7 +48,11 @@ public class MyDialog extends ActionBarActivity implements SearchView.OnQueryTex
             prodUrl = prodUrl+prodID;
         }
 
-
+        try {
+            jsonString = new JSONArray(getResources().getString(R.string.json_string));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         FadingActionBarHelper helper = new FadingActionBarHelper()
                 .actionBarBackground(R.drawable.ab_background)
@@ -116,7 +120,8 @@ public class MyDialog extends ActionBarActivity implements SearchView.OnQueryTex
         }
         @Override
         protected String doInBackground(String... urls) {
-            return getJsonString.GET(urls[0]);
+            //return getJsonString.GET(urls[0],jsonString);
+            return "ssss";
         }
 
         @Override
