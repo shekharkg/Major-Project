@@ -131,10 +131,12 @@ public class MyDialog extends ActionBarActivity implements SearchView.OnQueryTex
                 String strImage = docs.getJSONObject(0).getString("thumb_image_url");
                 prodImg = strImage.replace("wid=120&hei=120", "wid=1080&hei=675");
 
+
                 setTitle(prodTitle);
+                Ion.with(prodImageView).placeholder(R.drawable.product).error(R.drawable.product).load(prodImg);
                 prodTitleView.setText(prodTitle);
                 prodDescView.setText(prodDesc);
-                Ion.with(prodImageView).placeholder(R.drawable.product).error(R.drawable.product).load(prodImg);
+
             } catch (JSONException e) {
                 // TODO Auto-generated catch block
                 prodTitleView.setText("Connect to Internet");
