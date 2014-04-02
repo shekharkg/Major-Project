@@ -30,9 +30,7 @@ import java.net.URLDecoder;
 abstract public class MainActivity extends ActionBarActivity implements AbsListView.OnScrollListener, AbsListView.OnItemClickListener, SearchView.OnQueryTextListener {
 
     private static final String TAG = "MainActivity";
-    String title = "product title";
-    String id = "product id";
-    String image = "http://image.shutterstock.com/display_pic_with_logo/849265/111971633/stock-…to-concept-error-on-white-background-page-not-found-d-render-111971633.jpg";
+    String title, id, image, buy;
     int start,rows,end;
     String search = "nike";
     StaggeredGridView myGridView;
@@ -155,6 +153,7 @@ abstract public class MainActivity extends ActionBarActivity implements AbsListV
         setIntentProdId.putExtra("prodPrice",productData.getId());
         setIntentProdId.putExtra("prodTitle",productData.getTitle());
         setIntentProdId.putExtra("prodImage",productData.getImage());
+        setIntentProdId.putExtra("prodBuy",productData.getBuy());
         startActivity(setIntentProdId);
     }
 
@@ -188,7 +187,8 @@ abstract public class MainActivity extends ActionBarActivity implements AbsListV
                     title = products.getJSONObject(i).getString("product");
                     image = products.getJSONObject(i).getString("search_image");
                     id = products.getJSONObject(i).getString("price");
-                    myAdapter.add(new ProductData(title, image, id));
+                    buy = products.getJSONObject(i).getString("dre_landing_page_url");
+                    myAdapter.add(new ProductData(title, image, id, buy));
                 }
                 myAdapter.notifyDataSetChanged();
                 myHasRequestedMore = false;

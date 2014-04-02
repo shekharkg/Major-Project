@@ -7,15 +7,21 @@ public class ProductData {
     String title;
     String image;
     String id;
+    String buy;
 
-    public ProductData(String title, String image, String id){
+    public ProductData(String title, String image, String id, String buy){
         this.title = title;
         this.image = image;
         this.id = id;
+        this.buy = buy;
     }
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public void setBuy(String buy) {
+        this.buy = buy;
     }
 
     public void setTitle(String title) {
@@ -32,6 +38,10 @@ public class ProductData {
 
     public String getId() {
         return id;
+    }
+
+    public String getBuy() {
+        return buy;
     }
 
     public String getImage() {

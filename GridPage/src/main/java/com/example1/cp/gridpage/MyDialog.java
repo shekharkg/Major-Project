@@ -1,12 +1,14 @@
 package com.example1.cp.gridpage;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.ShareActionProvider;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -14,12 +16,15 @@ import android.widget.TextView;
 import com.koushikdutta.ion.Ion;
 import com.manuelpeinado.fadingactionbar.FadingActionBarHelper;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+
 public class MyDialog extends ActionBarActivity implements SearchView.OnQueryTextListener  {
 
     private SearchView mSearchView;
     private ImageView prodImageView;
     private TextView prodTitleView, prodDescView;
-    private String prodImg, prodTitle, prodPrice;
+    private String prodImg, prodTitle, prodPrice, prodBuy;
 
     private ShareActionProvider myShareActionProvider;
     @Override
@@ -31,15 +36,24 @@ public class MyDialog extends ActionBarActivity implements SearchView.OnQueryTex
             prodImg = getIntentDetails.getStringExtra("prodImage");
             prodTitle = getIntentDetails.getStringExtra("prodTitle");
             prodPrice = getIntentDetails.getStringExtra("prodPrice");
+            prodBuy = getIntentDetails.getStringExtra("prodBuy");
         }
 
+        String mainUrl = getResources().getString(R.string.prod_url_m);
+        try {
+            mainUrl = URLDecoder.decode(mainUrl, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        prodBuy = mainUrl + prodBuy;
 
+        setTitle(prodTitle);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         FadingActionBarHelper helper = new FadingActionBarHelper()
                 .actionBarBackground(R.drawable.ab_background)
-                .headerLayout(R.layout.header)
-                .contentLayout(R.layout.activity_scrollview);
+                .headerLayout(R.layout.activity_scrollview)
+                .contentLayout(R.layout.header);
         setContentView(helper.createView(this));
         helper.initActionBar(this);
 
@@ -53,9 +67,12 @@ public class MyDialog extends ActionBarActivity implements SearchView.OnQueryTex
         Ion.with(prodImageView).placeholder(R.drawable.product).error(R.drawable.product).load(prodImg);
         prodTitleView.setText(prodTitle);
         prodDescView.setText("Price : "+prodPrice);
+    }
 
-
-
+    public void buy(View v){
+        Intent i = new Intent(Intent.ACTION_VIEW);
+        i.setData(Uri.parse(prodBuy));
+        startActivity(i);
     }
 
     @Override
@@ -74,7 +91,7 @@ public class MyDialog extends ActionBarActivity implements SearchView.OnQueryTex
     private Intent createShareIntent() {
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.setType("text/plain");
-        shareIntent.putExtra(Intent.EXTRA_TEXT, "URL of the product to be shared");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, prodBuy);
         return shareIntent;
     }
 
