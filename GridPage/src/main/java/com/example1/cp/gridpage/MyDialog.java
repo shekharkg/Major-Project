@@ -1,7 +1,6 @@
 package com.example1.cp.gridpage;
 
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
@@ -15,44 +14,27 @@ import android.widget.TextView;
 import com.koushikdutta.ion.Ion;
 import com.manuelpeinado.fadingactionbar.FadingActionBarHelper;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-
 public class MyDialog extends ActionBarActivity implements SearchView.OnQueryTextListener  {
 
     private SearchView mSearchView;
-    private String prodUrl;
     private ImageView prodImageView;
     private TextView prodTitleView, prodDescView;
-    private String prodImg, prodTitle, prodDesc;
+    private String prodImg, prodTitle, prodPrice;
 
     private ShareActionProvider myShareActionProvider;
-    JSONArray jsonString;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Intent intentGetProdId = getIntent();
-        if(intentGetProdId!=null) {
-            String prodID = intentGetProdId.getStringExtra("prodID");
-            prodUrl =getResources().getString(R.string.prod_url);
-            try {
-                prodUrl = URLDecoder.decode(prodUrl, "UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-            prodUrl = prodUrl+prodID;
+        Intent getIntentDetails = getIntent();
+        if (getIntentDetails != null) {
+            prodImg = getIntentDetails.getStringExtra("prodImage");
+            prodTitle = getIntentDetails.getStringExtra("prodTitle");
+            prodPrice = getIntentDetails.getStringExtra("prodPrice");
         }
 
-        try {
-            jsonString = new JSONArray(getResources().getString(R.string.json_string));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         FadingActionBarHelper helper = new FadingActionBarHelper()
                 .actionBarBackground(R.drawable.ab_background)
@@ -65,10 +47,16 @@ public class MyDialog extends ActionBarActivity implements SearchView.OnQueryTex
         prodTitleView = (TextView) findViewById(R.id.prod_title);
         prodDescView = (TextView) findViewById(R.id.prod_desc);
 
-        new HttpAsyncTask().execute(prodUrl);
+        prodImg = prodImg.replace("style_search_image","properties");
+        prodImg = prodImg.replace("180_240","360_480_mini");
+
+        Ion.with(prodImageView).placeholder(R.drawable.product).error(R.drawable.product).load(prodImg);
+        prodTitleView.setText(prodTitle);
+        prodDescView.setText("Price : "+prodPrice);
+
+
 
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -109,45 +97,5 @@ public class MyDialog extends ActionBarActivity implements SearchView.OnQueryTex
         return false;
     }
 
-    private class HttpAsyncTask extends AsyncTask<String, Void, String> {
-        GetJsonString getJsonString = new GetJsonString();
 
-
-        @Override
-        protected void onPreExecute() {
-            // TODO Auto-generated method stub
-            super.onPreExecute();
-        }
-        @Override
-        protected String doInBackground(String... urls) {
-            //return getJsonString.GET(urls[0],jsonString);
-            return "ssss";
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            try {
-                JSONObject json = new JSONObject(result);
-                JSONObject response = json.getJSONObject("response");
-                JSONArray docs = response.getJSONArray("docs");
-
-                prodTitle = docs.getJSONObject(0).getString("product_name");
-                prodDesc = docs.getJSONObject(0).getString("long_desc");
-                String strImage = docs.getJSONObject(0).getString("thumb_image_url");
-                prodImg = strImage.replace("wid=120&hei=120", "wid=1080&hei=675");
-
-
-                setTitle(prodTitle);
-                Ion.with(prodImageView).placeholder(R.drawable.product).error(R.drawable.product).load(prodImg);
-                prodTitleView.setText(prodTitle);
-                prodDescView.setText(prodDesc);
-
-            } catch (JSONException e) {
-                // TODO Auto-generated catch block
-                prodTitleView.setText("Connect to Internet");
-                e.printStackTrace();
-            }
-        }
-
-    }
 }

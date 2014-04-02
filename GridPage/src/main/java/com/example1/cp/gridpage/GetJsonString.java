@@ -37,8 +37,8 @@ public class GetJsonString {
 
             // 4. convert JSONObject to JSON to String
 
-            String strImage = jsonArray.toString();
-            json = strImage.replace(":0", ":"+start);
+            json = jsonArray.toString();
+            json = json.replace(":0", ":"+start);
             json = json.replace("nike", search);
 
             // ** Alternative way to convert Person object to JSON string usin Jackson Lib

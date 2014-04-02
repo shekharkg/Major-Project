@@ -84,7 +84,7 @@ public class GridAdapter extends ArrayAdapter<ProductData> {
         vh.productImg.setHeightRatio(positionHeight);
         vh.txtLineOne.setText(getItem(position).getTitle());
         //vh.txtLineOne.setText(getItem(position).getTitle() + position);  =============  for checking items position. remove upper line if use this
-        vh.btnGo.setText(getItem(position).getId());
+        //vh.btnGo.setText(getItem(position).getId());
         Ion.with(vh.productImg).placeholder(R.drawable.product).error(R.drawable.product).load(getItem(position).getImage());
 
               vh.btnGo.setOnClickListener(new View.OnClickListener() {
