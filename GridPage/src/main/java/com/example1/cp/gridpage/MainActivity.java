@@ -150,9 +150,9 @@ abstract public class MainActivity extends ActionBarActivity implements AbsListV
 
         ProductData productData = myAdapter.getItem(position);
         Intent setIntentProdId = new Intent(this, MyDialog.class);
-        setIntentProdId.putExtra("prodPrice",productData.getId());
-        setIntentProdId.putExtra("prodTitle",productData.getTitle());
-        setIntentProdId.putExtra("prodImage",productData.getImage());
+        setIntentProdId.putExtra("prodID",productData.getId());
+        //setIntentProdId.putExtra("prodTitle",productData.getTitle());
+        //setIntentProdId.putExtra("prodImage",productData.getImage());
         setIntentProdId.putExtra("prodBuy",productData.getBuy());
         startActivity(setIntentProdId);
     }

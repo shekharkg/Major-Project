@@ -4,8 +4,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
     android:id="@+id/panel_content"
-    android:layout_width="360dp"
-    android:layout_height="480dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
     android:descendantFocusability="blocksDescendants">
 
     <ImageView
@@ -22,9 +22,15 @@
         android:layout_height="wrap_content"
         android:layout_margin="30dp"
         android:onClick="buy"
-        android:layout_gravity="top|right"
+        android:layout_gravity="top|left"
         android:background="@color/black"
         android:textColor="@color/white"
         android:text="Buy" />
+    <ListView
+        android:layout_width="80px"
+        android:layout_height="match_parent"
+        android:id="@+id/listView"
+        android:layout_marginRight="10dp"
+        android:layout_gravity="top|right" />
 
 </FrameLayout>

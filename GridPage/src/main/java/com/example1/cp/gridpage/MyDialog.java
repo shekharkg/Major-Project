@@ -2,6 +2,7 @@ package com.example1.cp.gridpage;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
@@ -9,23 +10,34 @@ import android.support.v7.widget.ShareActionProvider;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
 
 import com.koushikdutta.ion.Ion;
 import com.manuelpeinado.fadingactionbar.FadingActionBarHelper;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.List;
 
-public class MyDialog extends ActionBarActivity implements SearchView.OnQueryTextListener  {
+public class MyDialog extends ActionBarActivity implements SearchView.OnQueryTextListener, AdapterView.OnItemClickListener {
 
     private SearchView mSearchView;
     private ImageView prodImageView;
     private TextView prodTitleView, prodDescView;
-    private String prodImg, prodTitle, prodPrice, prodBuy;
-
+    private String prodImg, prodTitle, prodID, prodBuy;
+    ListView imageListView;
+    List<String> imageArr = new ArrayList<String>();
     private ShareActionProvider myShareActionProvider;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,9 +45,9 @@ public class MyDialog extends ActionBarActivity implements SearchView.OnQueryTex
 
         Intent getIntentDetails = getIntent();
         if (getIntentDetails != null) {
-            prodImg = getIntentDetails.getStringExtra("prodImage");
-            prodTitle = getIntentDetails.getStringExtra("prodTitle");
-            prodPrice = getIntentDetails.getStringExtra("prodPrice");
+            //prodImg = getIntentDetails.getStringExtra("prodImage");
+            //prodTitle = getIntentDetails.getStringExtra("prodTitle");
+            prodID = getIntentDetails.getStringExtra("prodID");
             prodBuy = getIntentDetails.getStringExtra("prodBuy");
         }
 
@@ -61,12 +73,19 @@ public class MyDialog extends ActionBarActivity implements SearchView.OnQueryTex
         prodTitleView = (TextView) findViewById(R.id.prod_title);
         prodDescView = (TextView) findViewById(R.id.prod_desc);
 
-        prodImg = prodImg.replace("style_search_image","properties");
-        prodImg = prodImg.replace("180_240","360_480_mini");
+        imageListView = (ListView) findViewById(R.id.listView);
+        imageListView.setOnItemClickListener(this);
 
-        Ion.with(prodImageView).placeholder(R.drawable.product).error(R.drawable.product).load(prodImg);
-        prodTitleView.setText(prodTitle);
-        prodDescView.setText("Price : "+prodPrice);
+        //prodImg = prodImg.replace("style_search_image","properties");
+        //prodImg = prodImg.replace("180_240","360_480_mini");
+
+        //Ion.with(prodImageView).placeholder(R.drawable.product).error(R.drawable.product).load(prodImg);
+        //prodTitleView.setText(prodTitle);
+        //prodDescView.setText("Price : "+ prodPrice);
+
+
+        new HttpAsyncTask().execute(prodBuy);
+
     }
 
     public void buy(View v){
@@ -114,5 +133,56 @@ public class MyDialog extends ActionBarActivity implements SearchView.OnQueryTex
         return false;
     }
 
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        TextView txt = (TextView) view.findViewById(R.id.text_sample);
+        String imgUrl = txt.getText().toString();
+        imgUrl = imgUrl.replace("48_64","360_480");
+        Ion.with(prodImageView).placeholder(R.drawable.product).error(R.drawable.product).load(imgUrl);
+    }
+
+    class HttpAsyncTask extends AsyncTask<String, Void, Document> {
+
+        @Override
+        protected void onPreExecute() {
+            // TODO Auto-generated method stub
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Document doInBackground(String... urls) {
+            Document doc = null;
+            try {
+                doc = Jsoup.connect(prodBuy).userAgent("Mozilla").get();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return doc;
+        }
+
+        @Override
+        protected void onPostExecute(Document doc) {
+            Elements title = doc.select("h1[class=title]");
+            Elements price = doc.select("[class=price]");
+            Elements imageArray = doc.select("[width=48]");
+
+
+            for (Element src : imageArray)
+            {
+                imageArr.add(src.attr("abs:src"));
+            }
+            String image = imageArr.get(0).replace("48_64","360_480");
+            Elements description = doc.select("[id=product-description]");
+
+            ImageListAdapter adapter = new ImageListAdapter(MyDialog.this,imageArr, imageArr);
+
+            prodTitleView.setText(title.text());
+            prodDescView.setText(description.text());
+            Ion.with(prodImageView).placeholder(R.drawable.product).error(R.drawable.product).load(image);
+
+            imageListView.setAdapter(adapter);
+        }
+
+    }
 
 }
