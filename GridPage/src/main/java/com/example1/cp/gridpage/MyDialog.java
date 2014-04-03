@@ -37,8 +37,12 @@ public class MyDialog extends ActionBarActivity implements SearchView.OnQueryTex
     private TextView prodTitleView, prodDescView;
     private String prodImg, prodTitle, prodID, prodBuy;
     ListView imageListView;
-    List<String> imageArr = new ArrayList<String>();
+    List<String> imageList= new ArrayList<String>();
+    List<String> sizeList = new ArrayList<String>();
+    SingleProductDetails objectSingleProductDetails;
+
     private ShareActionProvider myShareActionProvider;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -163,24 +167,33 @@ public class MyDialog extends ActionBarActivity implements SearchView.OnQueryTex
         @Override
         protected void onPostExecute(Document doc) {
             Elements title = doc.select("h1[class=title]");
+            Elements description = doc.select("[id=product-description]");
             Elements price = doc.select("[class=price]");
             Elements imageArray = doc.select("[width=48]");
+            Elements avail_size = doc.select("[data-availableinwarehouse]");
+            Elements discount = doc.select("[class=discount]");
+            Elements prodID = doc.select("[class=id pdt-code]");
 
-
-            for (Element src : imageArray)
+            for (Element srcImg : imageArray)
             {
-                imageArr.add(src.attr("abs:src"));
+                imageList.add(srcImg.attr("abs:src"));
             }
-            String image = imageArr.get(0).replace("48_64","360_480");
-            Elements description = doc.select("[id=product-description]");
-
-            ImageListAdapter adapter = new ImageListAdapter(MyDialog.this,imageArr, imageArr);
+            String image = imageList.get(0).replace("48_64", "360_480");
+            String exactPrice = price.text();
+            exactPrice = exactPrice.replace("click for offer"," ");
+            for (Element src : avail_size)
+            {
+                sizeList.add(src.text());
+            }
 
             prodTitleView.setText(title.text());
             prodDescView.setText(description.text());
             Ion.with(prodImageView).placeholder(R.drawable.product).error(R.drawable.product).load(image);
 
+            ImageListAdapter adapter = new ImageListAdapter(MyDialog.this,imageList, imageList);
             imageListView.setAdapter(adapter);
+            //prodTitleView.setText(title.text()+ "\n" +description.text()+ "\n" +exactPrice+ "\n" +imageList+ "\n" +prodID.text()+ "\n" +sizeList + "\n" + discount.text());
+            objectSingleProductDetails = new SingleProductDetails(title.text(),description.text(),exactPrice,imageList,sizeList,discount.text(),prodID.text());
         }
 
     }
