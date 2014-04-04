@@ -1,6 +1,9 @@
 package com.example1.cp.gridpage;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -166,34 +169,44 @@ public class MyDialog extends ActionBarActivity implements SearchView.OnQueryTex
 
         @Override
         protected void onPostExecute(Document doc) {
-            Elements title = doc.select("h1[class=title]");
-            Elements description = doc.select("[id=product-description]");
-            Elements price = doc.select("[class=price]");
-            Elements imageArray = doc.select("[width=48]");
-            Elements avail_size = doc.select("[data-availableinwarehouse]");
-            Elements discount = doc.select("[class=discount]");
-            Elements prodID = doc.select("[class=id pdt-code]");
+            ConnectivityManager connec = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+            if (connec != null && (connec.getNetworkInfo(1).getState() == NetworkInfo.State.CONNECTED) ||(connec.getNetworkInfo(0).getState() == NetworkInfo.State.CONNECTED)){
+                //You are connected, do something online.
 
-            for (Element srcImg : imageArray)
-            {
-                imageList.add(srcImg.attr("abs:src"));
+
+                Elements title = doc.select("h1[class=title]");
+                Elements description = doc.select("[id=product-description]");
+                Elements price = doc.select("[class=price]");
+                Elements imageArray = doc.select("[width=48]");
+                Elements avail_size = doc.select("[data-availableinwarehouse]");
+                Elements discount = doc.select("[class=discount]");
+                Elements prodID = doc.select("[class=id pdt-code]");
+
+                for (Element srcImg : imageArray) {
+                    imageList.add(srcImg.attr("abs:src"));
+                }
+                String image = imageList.get(0).replace("48_64", "360_480");
+                String exactPrice = price.text();
+                exactPrice = exactPrice.replace("click for offer", " ");
+                for (Element src : avail_size) {
+                    sizeList.add(src.text());
+                }
+
+                prodTitleView.setText(title.text());
+                prodDescView.setText(description.text());
+                Ion.with(prodImageView).placeholder(R.drawable.product).error(R.drawable.product).load(image);
+
+                ImageListAdapter adapter = new ImageListAdapter(MyDialog.this, imageList, imageList);
+                imageListView.setAdapter(adapter);
+                //prodTitleView.setText(title.text()+ "\n" +description.text()+ "\n" +exactPrice+ "\n" +imageList+ "\n" +prodID.text()+ "\n" +sizeList + "\n" + discount.text());
+                objectSingleProductDetails = new SingleProductDetails(title.text(), description.text(), exactPrice, imageList, sizeList, discount.text(), prodID.text());
+            }else if (connec.getNetworkInfo(0).getState() == NetworkInfo.State.DISCONNECTED ||  connec.getNetworkInfo(1).getState() == NetworkInfo.State.DISCONNECTED ) {
+                //Not connected.
+                prodTitleView.setText("Connect to Internet...");
             }
-            String image = imageList.get(0).replace("48_64", "360_480");
-            String exactPrice = price.text();
-            exactPrice = exactPrice.replace("click for offer"," ");
-            for (Element src : avail_size)
-            {
-                sizeList.add(src.text());
-            }
 
-            prodTitleView.setText(title.text());
-            prodDescView.setText(description.text());
-            Ion.with(prodImageView).placeholder(R.drawable.product).error(R.drawable.product).load(image);
 
-            ImageListAdapter adapter = new ImageListAdapter(MyDialog.this,imageList, imageList);
-            imageListView.setAdapter(adapter);
-            //prodTitleView.setText(title.text()+ "\n" +description.text()+ "\n" +exactPrice+ "\n" +imageList+ "\n" +prodID.text()+ "\n" +sizeList + "\n" + discount.text());
-            objectSingleProductDetails = new SingleProductDetails(title.text(),description.text(),exactPrice,imageList,sizeList,discount.text(),prodID.text());
+
         }
 
     }

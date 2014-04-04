@@ -32,7 +32,7 @@ abstract public class MainActivity extends ActionBarActivity implements AbsListV
     private static final String TAG = "MainActivity";
     String title, id, image, buy;
     int start,rows,end;
-    String search = "nike";
+    String search = "Nike";
     StaggeredGridView myGridView;
     private boolean myHasRequestedMore;
     GridAdapter myAdapter;

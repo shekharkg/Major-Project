@@ -1,6 +1,9 @@
 package com.example1.cp.gridpage;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
@@ -146,7 +149,7 @@ public class ShopByBrands extends ActionBarActivity implements AbsListView.OnScr
 
         ProductDataBrands productData = myAdapter.getItem(position);
         Intent setIntentProdId = new Intent(this, SearchActivity.class);
-        setIntentProdId.putExtra("searchValue",productData.getBrand_url().toString());
+        setIntentProdId.putExtra("searchValue",productData.getBrand_names().toString());
         startActivity(setIntentProdId);
     }
 
@@ -172,23 +175,27 @@ public class ShopByBrands extends ActionBarActivity implements AbsListView.OnScr
 
         @Override
         protected void onPostExecute(Document doc) {
+            ConnectivityManager connec = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+            if (connec != null && (connec.getNetworkInfo(1).getState() == NetworkInfo.State.CONNECTED) ||(connec.getNetworkInfo(0).getState() == NetworkInfo.State.CONNECTED)) {
+                //You are connected, do something online.
+                Elements brand_title = doc.select("[class=no-decoration-link]");
+                Elements brand_image = doc.select("[width=120]");
 
-            Elements brand_title = doc.select("[class=no-decoration-link]");
-            Elements brand_image = doc.select("[width=120]");
+                String brand_names, brand_url, brand_logo;
+                for (int i = 0; i < brand_title.size(); i++) {
+                    brand_names = brand_title.get(i).text();
+                    brand_url = brand_title.get(i).attr("abs:href").replace(replaceUrl, "");
+                    brand_logo = brand_image.get(i).attr("abs:src");
+                    brand_logo = brand_logo.replace(" ", "%20");
+                    myAdapter.add(new ProductDataBrands(brand_names, brand_url, brand_logo));
+                }
 
-
-
-            String brand_names, brand_url, brand_logo;
-            for(int i = 0; i<brand_title.size(); i++){
-                brand_names = brand_title.get(i).text();
-                brand_url = brand_title.get(i).attr("abs:href").replace(replaceUrl,"");
-                brand_logo = brand_image.get(i).attr("abs:src");
-                brand_logo = brand_logo.replace(" ","%20");
-                myAdapter.add(new ProductDataBrands(brand_names, brand_url, brand_logo));
+                myAdapter.notifyDataSetChanged();
+                myHasRequestedMore = false;
+            }else if (connec.getNetworkInfo(0).getState() == NetworkInfo.State.DISCONNECTED ||  connec.getNetworkInfo(1).getState() == NetworkInfo.State.DISCONNECTED ) {
+                //Not connected.
+                txtFooterTitle.setText("Connect to Internet...");
             }
-
-            myAdapter.notifyDataSetChanged();
-            myHasRequestedMore = false;
 
            }
 
