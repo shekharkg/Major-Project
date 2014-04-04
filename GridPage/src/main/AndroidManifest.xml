@@ -11,7 +11,7 @@
         android:label="@string/app_name"
         android:theme="@style/Theme.AppCompat.Light">
 
-        <activity android:name=".IndexActivity"
+        <activity android:name=".ShopByBrands"
             android:configChanges="orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -21,18 +21,18 @@
         </activity>
 
         <activity android:name=".MyDialog"
-            android:parentActivityName=".IndexActivity">
+            android:parentActivityName=".ShopByBrands">
             <meta-data android:name="android.support.PARENT_ACTIVITY"
-                android:value=".IndexActivity" />
+                android:value=".ShopByBrands" />
         </activity>
 
 
 
         <activity android:name=".SearchActivity"
             android:configChanges="orientation|screenSize"
-            android:parentActivityName=".IndexActivity">
+            android:parentActivityName=".ShopByBrands">
             <meta-data android:name="android.support.PARENT_ACTIVITY"
-                android:value=".IndexActivity" />
+                android:value=".ShopByBrands" />
         </activity>
 
 
