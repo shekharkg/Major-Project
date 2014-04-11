@@ -34,21 +34,19 @@ import java.net.URLDecoder;
 public class ShopByBrands extends ActionBarActivity implements AbsListView.OnScrollListener, AbsListView.OnItemClickListener, SearchView.OnQueryTextListener {
 
     private static final String TAG = "MainActivity";
-  //  String title, id, image, buy;
-    //int start,rows,end;
-    String search = "nike";
     StaggeredGridView myGridView;
     private boolean myHasRequestedMore;
     GridAdapterBrands myAdapter;
-    // String baseUrl;
-    // String ajaxUrl;
     LayoutInflater layoutInflater;
     View footer;
     TextView txtFooterTitle;
     SearchView mSearchView;
-   // JSONArray jsonString;
     String postUrl;
     String replaceUrl;
+    private Elements brand_title;
+    private Elements brand_image;
+    int start, last, end;
+    String brand_names, brand_url, brand_logo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,10 +61,8 @@ public class ShopByBrands extends ActionBarActivity implements AbsListView.OnScr
         myGridView.addFooterView(footer);
         myAdapter = new GridAdapterBrands(this, R.id.txt_line);
 
-       // start = 0;
-       // rows = 50;
-       // end = 0;
-
+        start = 30;
+        last = 60;
         replaceUrl = getResources().getString(R.string.prod_url_m);
         try {
             replaceUrl = URLDecoder.decode(replaceUrl,"UTF-8");
@@ -122,26 +118,32 @@ public class ShopByBrands extends ActionBarActivity implements AbsListView.OnScr
 
     @Override
     public void onScroll(final AbsListView view, final int firstVisibleItem, final int visibleItemCount, final int totalItemCount) {
-        /*Log.d(TAG, "onScroll firstVisibleItem:" + firstVisibleItem +
-                " visibleItemCount:" + visibleItemCount +
-                " totalItemCount:" + totalItemCount);
-        // our handling
         if (!myHasRequestedMore) {
             int lastInScreen = firstVisibleItem + visibleItemCount;
-            if ((lastInScreen >= totalItemCount) && (end==0)){
+            if ((lastInScreen >= totalItemCount) && (last < end+30)){
                 Log.d(TAG, "onScroll lastInScreen - so load more");
                 myHasRequestedMore = true;
                 onLoadMoreItems();
             }
-        }*/
+        }
         txtFooterTitle.setText("End...");
     }
 
     private void onLoadMoreItems() {
-        new HttpAsyncTask().execute(postUrl);
-       // start += rows;
-       // rows += 50;
-        //ajaxUrl = baseUrl+start+"&rows="+rows+"&q="+search;
+        if(last>end){
+            last = end;
+        }
+        for (int i = start; i < last; i++) {
+            brand_names = brand_title.get(i).text();
+            brand_url = brand_title.get(i).attr("abs:href").replace(replaceUrl, "");
+            brand_logo = brand_image.get(i).attr("abs:src");
+            brand_logo = brand_logo.replace(" ", "%20");
+            myAdapter.add(new ProductDataBrands(brand_names, brand_url, brand_logo));
+        }
+        myAdapter.notifyDataSetChanged();
+        myHasRequestedMore = false;
+        start = last;
+        last += 30;
     }
 
     @Override
@@ -178,18 +180,16 @@ public class ShopByBrands extends ActionBarActivity implements AbsListView.OnScr
             ConnectivityManager connec = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
             if (connec != null && (connec.getNetworkInfo(1).getState() == NetworkInfo.State.CONNECTED) ||(connec.getNetworkInfo(0).getState() == NetworkInfo.State.CONNECTED)) {
                 //You are connected, do something online.
-                Elements brand_title = doc.select("[class=no-decoration-link]");
-                Elements brand_image = doc.select("[width=120]");
-
-                String brand_names, brand_url, brand_logo;
-                for (int i = 0; i < brand_title.size(); i++) {
+                brand_title = doc.select("[class=no-decoration-link]");
+                brand_image = doc.select("[width=120]");
+                for (int i = 0; i < 30; i++) {
                     brand_names = brand_title.get(i).text();
                     brand_url = brand_title.get(i).attr("abs:href").replace(replaceUrl, "");
                     brand_logo = brand_image.get(i).attr("abs:src");
                     brand_logo = brand_logo.replace(" ", "%20");
                     myAdapter.add(new ProductDataBrands(brand_names, brand_url, brand_logo));
                 }
-
+                end = brand_title.size();
                 myAdapter.notifyDataSetChanged();
                 myHasRequestedMore = false;
             }else if (connec.getNetworkInfo(0).getState() == NetworkInfo.State.DISCONNECTED ||  connec.getNetworkInfo(1).getState() == NetworkInfo.State.DISCONNECTED ) {
