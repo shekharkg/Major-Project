@@ -39,3 +39,4 @@ out
 #Plugins and errata
 mirror/
 GridPage/src/main/res/values/url.xml
+*.db
